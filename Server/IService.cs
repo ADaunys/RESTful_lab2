@@ -52,10 +52,5 @@ public interface IService
     /// <returns>Amount of liquid to be subtracted</returns>
     int SubtractLiquid(int amount);
 
-    /// <summary>
-    /// Get bounds
-    /// </summary>
-    /// <param name="structure">Structure to fill.</param>
-    /// <returns>Structure with bounds.</returns>
     // WaterContainer GetBounds(WaterContainer structure);
 }
