@@ -52,51 +52,20 @@ namespace ServiceReference
         partial void PrepareRequest(System.Net.Http.HttpClient client, System.Net.Http.HttpRequestMessage request, System.Text.StringBuilder urlBuilder);
         partial void ProcessResponse(System.Net.Http.HttpClient client, System.Net.Http.HttpResponseMessage response);
 
-        /// <summary>
-        /// Add given numbers.
-        /// </summary>
-        /// <param name="left">Left number.</param>
-        /// <param name="right">Right number.</param>
-        /// <returns>Success</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task<int> AddLiteralAsync(int left, int? right)
+        public virtual System.Threading.Tasks.Task<bool> CanSubtractLiquidAsync()
         {
-            return AddLiteralAsync(left, right, System.Threading.CancellationToken.None);
+            return CanSubtractAsync(System.Threading.CancellationToken.None);
         }
 
-        /// <summary>
-        /// Add given numbers.
-        /// </summary>
-        /// <param name="left">Left number.</param>
-        /// <param name="right">Right number.</param>
-        /// <returns>Success</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual int AddLiteral(int left, int? right)
+        public virtual bool CanSubtractLiquid()
         {
-            return System.Threading.Tasks.Task.Run(async () => await AddLiteralAsync(left, right, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+            return System.Threading.Tasks.Task.Run(async () => await CanSubtractAsync(System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
         }
 
-        /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
-        /// <summary>
-        /// Add given numbers.
-        /// </summary>
-        /// <param name="left">Left number.</param>
-        /// <param name="right">Right number.</param>
-        /// <returns>Success</returns>
-        /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task<int> AddLiteralAsync(int left, int? right, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<bool> CanSubtractAsync(System.Threading.CancellationToken cancellationToken)
         {
-            if (left == null)
-                throw new System.ArgumentNullException("left");
-
             var urlBuilder_ = new System.Text.StringBuilder();
-            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/service/AddLiteral/{left}?");
-            urlBuilder_.Replace("{left}", System.Uri.EscapeDataString(ConvertToString(left, System.Globalization.CultureInfo.InvariantCulture)));
-            if (right != null)
-            {
-                urlBuilder_.Append(System.Uri.EscapeDataString("right") + "=").Append(System.Uri.EscapeDataString(ConvertToString(right, System.Globalization.CultureInfo.InvariantCulture))).Append("&");
-            }
-            urlBuilder_.Length--;
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/service/canSubtractLiquid");
 
             var client_ = _httpClient;
             var disposeClient_ = false;
@@ -105,6 +74,84 @@ namespace ServiceReference
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
+
+                    PrepareRequest(client_, request_, urlBuilder_);
+
+                    var url_ = urlBuilder_.ToString();
+                    request_.RequestUri = new System.Uri(url_, System.UriKind.RelativeOrAbsolute);
+
+                    PrepareRequest(client_, request_, url_);
+
+                    var response_ = await client_.SendAsync(request_, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+                    var disposeResponse_ = true;
+                    try
+                    {
+                        var headers_ = System.Linq.Enumerable.ToDictionary(response_.Headers, h_ => h_.Key, h_ => h_.Value);
+                        if (response_.Content != null && response_.Content.Headers != null)
+                        {
+                            foreach (var item_ in response_.Content.Headers)
+                                headers_[item_.Key] = item_.Value;
+                        }
+
+                        ProcessResponse(client_, response_);
+
+                        var status_ = (int)response_.StatusCode;
+                        if (status_ == 200)
+                        {
+                            var objectResponse_ = await ReadObjectResponseAsync<int>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
+                        }
+                        else
+                        {
+                            var responseData_ = response_.Content == null ? null : await response_.Content.ReadAsStringAsync().ConfigureAwait(false);
+                            throw new ApiException("The HTTP status code of the response was not expected (" + status_ + ").", status_, responseData_, headers_, null);
+                        }
+                    }
+                    finally
+                    {
+                        if (disposeResponse_)
+                            response_.Dispose();
+                    }
+                }
+            }
+            finally
+            {
+                if (disposeClient_)
+                    client_.Dispose();
+            }
+        }
+
+        public virtual System.Threading.Tasks.Task<int> SubtractLiquidAsync(int amount)
+        {
+            return SubtractAsync(amount, System.Threading.CancellationToken.None);
+        }
+
+        public virtual bool SubtractLiquid(int amount)
+        {
+            return System.Threading.Tasks.Task.Run(async () => await SubtractAsync(amount, System.Threading.CancellationToken.None)).GetAwaiter().GetResult();
+        }
+
+        public virtual async System.Threading.Tasks.Task<int> SubtractAsync(int amount, System.Threading.CancellationToken cancellationToken)
+        {
+            if (amount == null)
+                throw new System.ArgumentNullException("amount");
+
+            var urlBuilder_ = new System.Text.StringBuilder();
+            urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/service/subtractLiquid/{amount}");
+            urlBuilder_.Replace("{amount}", System.Uri.EscapeDataString(ConvertToString(amount, System.Globalization.CultureInfo.InvariantCulture)));
+
+            var client_ = _httpClient;
+            var disposeClient_ = false;
+            try
+            {
+                using (var request_ = new System.Net.Http.HttpRequestMessage())
+                {
+                    request_.Method = new System.Net.Http.HttpMethod("POST");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
                     PrepareRequest(client_, request_, urlBuilder_);

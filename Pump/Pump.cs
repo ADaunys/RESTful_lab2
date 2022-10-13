@@ -55,18 +55,25 @@ class Pump
 
                 while (true)
                 {
-                    //test simple call
-                    var left = rnd.Next(-100, 100);
-                    var right = rnd.Next(-100, 100);
-
-                    log.Info($"Before 'int Add(int, int)': left={left}, right={right}");
-                    var sum = service.AddLiteral(left, right);
-                    log.Info($"After 'int Add(int, int)': sum={sum}, left={left}, right={right}\n");
-
-                    left = rnd.Next(-100, 100);
-                    right = rnd.Next(-100, 100);
+                    var canPump = service.CanSubtractLiquid();
 
                     Thread.Sleep(2000);
+
+                    var liquidToPump = rnd.Next(1, 20);
+
+                    if (canPump)
+                    {
+                        log.Info($"Generated amount to pump out: {liquidToPump}");
+                        var pumpedLiquid = service.SubtractLiquid(liquidToPump);
+                        log.Info($"Amount of liquid pumped out: {pumpedLiquid}");
+                        log.Info("\n");
+                    }
+                    else
+                    {
+                        log.Info("I cannot pump out the liquid");
+                        log.Info("\n");
+                    }
+                    log.Info("---");
 
                     Thread.Sleep(2000);
                 }

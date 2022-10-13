@@ -8,112 +8,129 @@ using NLog;
 
 public class Server
 {
-	/// <summary>
-	/// Logger for this class.
-	/// </summary>
-	Logger log = LogManager.GetCurrentClassLogger();
+    public static int capacity = new Random().Next(0, 100);
+    public static int lowerBound = 0;
+    public static int upperBound = 0;
 
-	/// <summary>
-	/// Configure loggin subsystem.
-	/// </summary>
-	private void ConfigureLogging()
-	{
-		var config = new NLog.Config.LoggingConfiguration();
+    /// <summary>
+    /// Logger for this class.
+    /// </summary>
+    Logger log = LogManager.GetCurrentClassLogger();
 
-		var console =
-			new NLog.Targets.ConsoleTarget("console")
-			{
-				Layout = @"${date:format=HH\:mm\:ss}|${level}| ${message} ${exception}"
-			};
-		config.AddTarget(console);
-		config.AddRuleForAllLevels(console);
+    /// <summary>
+    /// Configure loggin subsystem.
+    /// </summary>
+    private void ConfigureLogging()
+    {
+        var config = new NLog.Config.LoggingConfiguration();
 
-		LogManager.Configuration = config;
-	}
+        var console =
+            new NLog.Targets.ConsoleTarget("console")
+            {
+                Layout = @"${date:format=HH\:mm\:ss}|${level}| ${message} ${exception}"
+            };
+        config.AddTarget(console);
+        config.AddRuleForAllLevels(console);
 
-	/// <summary>
-	/// Program entry point.
-	/// </summary>
-	/// <param name="args">Command line arguments.</param>
-	public static void Main(string[] args)
-	{
-		var self = new Server();
-		self.Run(args);
-	}
+        LogManager.Configuration = config;
+    }
 
-	/// <summary>
-	/// Program body.
-	/// </summary>
-	/// <param name="args">Command line arguments.</param>
-	private void Run(string[] args) 
-	{
-		//configure logging
-		ConfigureLogging();
+    /// <summary>
+    /// Program entry point.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
+    public static void Main(string[] args)
+    {
+        var self = new Server();
+        self.Run(args);
+    }
 
-		//indicate server is about to start
-		log.Info("Server is about to start");
+    /// <summary>
+    /// Program body.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
+    private void Run(string[] args)
+    {
+        //configure logging
+        ConfigureLogging();
 
-		//start the server
-		StartServer(args);
-	}
+        //indicate server is about to start
+        log.Info("Server is about to start");
 
-	/// <summary>
-	/// Starts integrated server.
-	/// </summary>
-	/// <param name="args">Command line arguments.</param>
-	private void StartServer(string[] args)
-	{
-		//create web app builder
-		var builder = WebApplication.CreateBuilder(args);
+        //start the server
+        StartServer(args);
 
-		//configure integrated server
-		builder.WebHost.ConfigureKestrel(opts => {
-			opts.Listen(IPAddress.Loopback, 5000);
-		});
+        while (true)
+        {
+            lowerBound = new Random().Next(0, 50);
+            upperBound = new Random().Next(lowerBound + 1, 100);
+            log.Info("Bounds changed to: " + lowerBound + " " + upperBound);
+            Thread.Sleep(4000);
+        }
+    }
 
-		//add and configure swagger documentation generator (http://127.0.0.1:5000/swagger/)
-		builder.Services.AddSwaggerGen(opts => {
-			//include code comments in swagger documentation
-			var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-			opts.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
-		});
+    /// <summary>
+    /// Starts integrated server.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
+    private void StartServer(string[] args)
+    {
+        //create web app builder
+        var builder = WebApplication.CreateBuilder(args);
 
-		//turn on support for web api controllers
-		builder.Services.AddControllers();
+        //configure integrated server
+        builder.WebHost.ConfigureKestrel(opts =>
+        {
+            opts.Listen(IPAddress.Loopback, 5000);
+        });
 
-		//add CORS policies
-		builder.Services.AddCors(cr => {
-			//allow everything from everywhere
-			cr.AddPolicy("allowAll", cp => {
-				cp.AllowAnyOrigin();
-				cp.AllowAnyMethod();
-				cp.AllowAnyHeader();
-			});
-		});
+        //add and configure swagger documentation generator (http://127.0.0.1:5000/swagger/)
+        builder.Services.AddSwaggerGen(opts =>
+        {
+            //include code comments in swagger documentation
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            opts.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+        });
 
-		//build the server
-		var app = builder.Build();
+        //turn on support for web api controllers
+        builder.Services.AddControllers();
 
-		//turn CORS policy on
-		app.UseCors("allowAll");
+        //add CORS policies
+        builder.Services.AddCors(cr =>
+        {
+            //allow everything from everywhere
+            cr.AddPolicy("allowAll", cp =>
+            {
+                cp.AllowAnyOrigin();
+                cp.AllowAnyMethod();
+                cp.AllowAnyHeader();
+            });
+        });
 
-		//turn on support for swagger doc web page
-		app.UseSwagger();
-		app.UseSwaggerUI();
+        //build the server
+        var app = builder.Build();
 
-		//turn on request routing
-		app.UseRouting();
+        //turn CORS policy on
+        app.UseCors("allowAll");
 
-		//configure routes
-		app.UseEndpoints(ep => {
-			ep.MapControllerRoute(
-				name: "default",
-				pattern: "{controller}/{action=Index}/{id?}"
-			);
-		});
-		
-		//run the server
-		app.Run();
-		// app.RunAsync(); //use this if you need to implement background processing in the main thread
-	}
+        //turn on support for swagger doc web page
+        app.UseSwagger();
+        app.UseSwaggerUI();
+
+        //turn on request routing
+        app.UseRouting();
+
+        //configure routes
+        app.UseEndpoints(ep =>
+        {
+            ep.MapControllerRoute(
+                name: "default",
+                pattern: "{controller}/{action=Index}/{id?}"
+            );
+        });
+
+        //run the server
+        //app.Run();
+        app.RunAsync(); //use this if you need to implement background processing in the main thread
+    }
 }
