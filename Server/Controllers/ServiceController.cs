@@ -23,7 +23,7 @@ public class ServiceController : ControllerBase
     [Route("canAddLiquid")]
     public ActionResult<bool> CanAddLiquid()
     {
-        lock (accessLock)
+        lock (logic)
         {
             return logic.CanAddLiquid();
         }
@@ -37,7 +37,7 @@ public class ServiceController : ControllerBase
     [Route("canSubtractLiquid")]
     public ActionResult<bool> CanSubtractLiquid()
     {
-        lock (accessLock)
+        lock (logic)
         {
             return logic.CanSubtractLiquid();
         }
@@ -52,7 +52,7 @@ public class ServiceController : ControllerBase
     [Route("addLiquid/{amount}")]
     public ActionResult<int> AddLiquid([FromRoute] int amount)
     {
-        lock (accessLock)
+        lock (logic)
         {
             return logic.AddLiquid(amount);
         }
@@ -67,7 +67,7 @@ public class ServiceController : ControllerBase
     [Route("subtractLiquid/{amount}")]
     public ActionResult<int> SubtractLiquid([FromRoute] int amount)
     {
-        lock (accessLock)
+        lock (logic)
         {
             return logic.SubtractLiquid(amount);
         }

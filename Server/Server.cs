@@ -64,7 +64,7 @@ public class Server
         {
             lowerBound = new Random().Next(0, 50);
             upperBound = new Random().Next(lowerBound + 1, 100);
-            log.Info("Bounds changed to: " + lowerBound + " " + upperBound);
+            log.Info("Bounds changed to: " + lowerBound + " " + upperBound + " and current capacity is: " + capacity);
             Thread.Sleep(4000);
         }
     }
