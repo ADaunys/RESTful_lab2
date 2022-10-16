@@ -11,6 +11,7 @@ public class Server
     public static int capacity = new Random().Next(0, 100);
     public static int lowerBound = 0;
     public static int upperBound = 0;
+    public static bool clientIsActive = false;
 
     /// <summary>
     /// Logger for this class.
@@ -62,6 +63,12 @@ public class Server
 
         while (true)
         {
+            if (clientIsActive)
+            {
+                log.Info("Client is working...");
+                Thread.Sleep(2000);
+                Server.clientIsActive = false;
+            }
             lowerBound = new Random().Next(0, 50);
             upperBound = new Random().Next(lowerBound + 1, 100);
             log.Info("Bounds changed to: " + lowerBound + " " + upperBound + " and current capacity is: " + capacity);
