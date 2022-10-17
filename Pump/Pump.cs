@@ -57,8 +57,6 @@ class Pump
                 {
                     var canPump = service.CanSubtractLiquid();
 
-                    Thread.Sleep(2000);
-
                     var liquidToPump = rnd.Next(1, 20);
 
                     if (canPump)

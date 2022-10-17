@@ -57,8 +57,6 @@ class Fill
                 {
                     var canAdd = service.CanAddLiquid();
 
-                    Thread.Sleep(2000);
-
                     var liquidToAdd = rnd.Next(1, 20);
 
                     if (canAdd)
